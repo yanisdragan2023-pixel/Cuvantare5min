@@ -1,0 +1,447 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cuvântare — cronometru &amp; numărător de cuvinte</title>
+
+<link rel="icon" href="icon-32.png" sizes="32x32" type="image/png">
+<link rel="icon" href="icon-16.png" sizes="16x16" type="image/png">
+<link rel="apple-touch-icon" href="icon-180.png">
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#14171f">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Cuvântare">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;1,9..144,500&family=IBM+Plex+Mono:wght@400;500;600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#14171f;
+    --panel:#1b1f2b;
+    --panel-2:#232838;
+    --line:#333a4d;
+    --paper:#f3f1ea;
+    --muted:#8b90a3;
+    --gold:#e8a33d;
+    --gold-dim:#6b551f;
+    --green:#6fcf97;
+    --amber:#e8b83d;
+    --red:#e8615a;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:var(--ink);
+    color:var(--paper);
+    font-family:'Inter',sans-serif;
+    min-height:100vh;
+    display:flex;
+    justify-content:center;
+    padding:48px 20px 80px;
+  }
+  .wrap{width:100%;max-width:640px;}
+
+  header{margin-bottom:36px;}
+  .eyebrow{
+    color:var(--gold);
+    font-family:'IBM Plex Mono',monospace;
+    font-size:13px;
+    letter-spacing:0.02em;
+  }
+  h1{
+    font-family:'Fraunces',serif;
+    font-weight:600;
+    font-size:42px;
+    line-height:1.05;
+    margin:6px 0 10px;
+  }
+  h1 em{font-style:italic;font-weight:500;color:var(--gold);}
+  .sub{color:var(--muted);font-size:15px;line-height:1.5;max-width:46ch;}
+
+  .panel{
+    background:var(--panel);
+    border:1px solid var(--line);
+    border-radius:14px;
+    padding:32px;
+    margin-bottom:24px;
+  }
+
+  /* Timer */
+  .timer-row{
+    display:flex;
+    align-items:center;
+    gap:28px;
+  }
+  .ring-wrap{position:relative;width:150px;height:150px;flex:none;}
+  svg.ring{transform:rotate(-90deg);width:150px;height:150px;}
+  svg.ring circle{fill:none;stroke-width:8;}
+  .ring-track{stroke:var(--panel-2);}
+  .ring-progress{
+    stroke:var(--gold);
+    stroke-linecap:round;
+    transition:stroke-dashoffset 0.3s linear, stroke 0.3s linear;
+  }
+  .ring-time{
+    position:absolute;inset:0;
+    display:flex;align-items:center;justify-content:center;
+    font-family:'IBM Plex Mono',monospace;
+    font-size:27px;
+    font-weight:500;
+    letter-spacing:0.01em;
+  }
+  .timer-info{flex:1;}
+  .timer-status{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:12px;
+    color:var(--muted);
+    text-transform:uppercase;
+    letter-spacing:0.08em;
+    margin-bottom:10px;
+  }
+  .timer-status.live{color:var(--green);}
+  .timer-status.over{color:var(--red);}
+  .controls{display:flex;gap:10px;flex-wrap:wrap;}
+  button{
+    font-family:'Inter',sans-serif;
+    font-weight:500;
+    font-size:14px;
+    border-radius:8px;
+    border:1px solid var(--line);
+    padding:10px 18px;
+    cursor:pointer;
+    background:var(--panel-2);
+    color:var(--paper);
+    transition:background 0.15s, border-color 0.15s;
+  }
+  button:hover{border-color:var(--gold);}
+  button.primary{
+    background:var(--gold);
+    color:#1b1200;
+    border-color:var(--gold);
+  }
+  button.primary:hover{background:#f0b452;}
+  button:disabled{opacity:0.4;cursor:default;}
+  button:disabled:hover{border-color:var(--line);}
+
+  .duration-select{
+    margin-top:14px;
+    display:flex;
+    align-items:center;
+    gap:8px;
+    font-size:13px;
+    color:var(--muted);
+  }
+  .duration-select select{
+    background:var(--panel-2);
+    color:var(--paper);
+    border:1px solid var(--line);
+    border-radius:6px;
+    padding:5px 8px;
+    font-family:'Inter',sans-serif;
+    font-size:13px;
+  }
+
+  /* Text area */
+  label.field-label{
+    display:block;
+    font-family:'IBM Plex Mono',monospace;
+    font-size:12px;
+    color:var(--muted);
+    text-transform:uppercase;
+    letter-spacing:0.08em;
+    margin-bottom:12px;
+  }
+  textarea{
+    width:100%;
+    min-height:220px;
+    background:var(--panel-2);
+    border:1px solid var(--line);
+    border-radius:10px;
+    color:var(--paper);
+    font-family:'Inter',sans-serif;
+    font-size:16px;
+    line-height:1.6;
+    padding:16px;
+    resize:vertical;
+  }
+  textarea:focus{outline:none;border-color:var(--gold);}
+  textarea::placeholder{color:#5a5f70;}
+
+  .stats{
+    display:grid;
+    grid-template-columns:repeat(3,1fr);
+    gap:1px;
+    background:var(--line);
+    border:1px solid var(--line);
+    border-radius:10px;
+    overflow:hidden;
+    margin-top:20px;
+  }
+  .stat{
+    background:var(--panel-2);
+    padding:16px 14px;
+    text-align:center;
+  }
+  .stat .num{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:24px;
+    font-weight:500;
+    color:var(--gold);
+  }
+  .stat .num.warn{color:var(--red);}
+  .stat .lbl{
+    margin-top:4px;
+    font-size:12px;
+    color:var(--muted);
+  }
+
+  .pace-note{
+    margin-top:16px;
+    font-size:13px;
+    color:var(--muted);
+    line-height:1.5;
+    border-left:2px solid var(--gold-dim);
+    padding-left:12px;
+  }
+
+  footer{
+    text-align:center;
+    color:#4d5266;
+    font-size:12px;
+    margin-top:8px;
+  }
+
+  @media (max-width:480px){
+    .timer-row{flex-direction:column;align-items:flex-start;}
+    h1{font-size:32px;}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <div class="eyebrow">exersează-ți discursul</div>
+    <h1>Cuvân<em>tare</em></h1>
+    <p class="sub">Scrie sau lipește discursul, urmărește câte cuvinte ai și cronometrează-te — implicit 5 minute, ritm recomandat 120–150 cuvinte/minut.</p>
+  </header>
+
+  <section class="panel">
+    <div class="timer-row">
+      <div class="ring-wrap">
+        <svg class="ring" viewBox="0 0 150 150">
+          <circle class="ring-track" cx="75" cy="75" r="66"></circle>
+          <circle id="ringProgress" class="ring-progress" cx="75" cy="75" r="66"></circle>
+        </svg>
+        <div class="ring-time" id="timeDisplay">5:00</div>
+      </div>
+      <div class="timer-info">
+        <div class="timer-status" id="statusLabel">gata de start</div>
+        <div class="controls">
+          <button class="primary" id="startBtn">Start</button>
+          <button id="pauseBtn" disabled>Pauză</button>
+          <button id="resetBtn">Resetează</button>
+        </div>
+        <div class="duration-select">
+          <span>durată:</span>
+          <select id="durationSelect">
+            <option value="180">3 min</option>
+            <option value="300" selected>5 min</option>
+            <option value="420">7 min</option>
+            <option value="600">10 min</option>
+          </select>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="panel">
+    <label class="field-label" for="speechText">Textul discursului</label>
+    <textarea id="speechText" placeholder="Scrie sau lipește discursul aici…"></textarea>
+
+    <div class="stats">
+      <div class="stat">
+        <div class="num" id="wordCount">0</div>
+        <div class="lbl">cuvinte</div>
+      </div>
+      <div class="stat">
+        <div class="num" id="charCount">0</div>
+        <div class="lbl">caractere</div>
+      </div>
+      <div class="stat">
+        <div class="num" id="estTime">0:00</div>
+        <div class="lbl">durată estimată</div>
+      </div>
+    </div>
+
+    <div class="pace-note" id="paceNote">
+      La 130 cuvinte/minut, un discurs de 5 minute are nevoie de aproximativ 650 de cuvinte.
+    </div>
+  </section>
+
+  <footer>făcut pentru exersat vorbitul în public</footer>
+</div>
+
+<script>
+  // ---- Word / char counter ----
+  const speechText = document.getElementById('speechText');
+  const wordCountEl = document.getElementById('wordCount');
+  const charCountEl = document.getElementById('charCount');
+  const estTimeEl = document.getElementById('estTime');
+  const paceNoteEl = document.getElementById('paceNote');
+  const WPM = 130; // ritm mediu recomandat
+
+  function countWords(text){
+    const trimmed = text.trim();
+    if(!trimmed) return 0;
+    return trimmed.split(/\s+/).length;
+  }
+
+  function updateStats(){
+    const text = speechText.value;
+    const words = countWords(text);
+    const chars = text.length;
+    const estSeconds = Math.round((words / WPM) * 60);
+
+    wordCountEl.textContent = words;
+    charCountEl.textContent = chars;
+    estTimeEl.textContent = formatTime(estSeconds);
+
+    const targetSeconds = parseInt(durationSelect.value, 10);
+    const diff = estSeconds - targetSeconds;
+    estTimeEl.classList.toggle('warn', Math.abs(diff) > 30);
+
+    if(words === 0){
+      paceNoteEl.textContent = `La ${WPM} cuvinte/minut, un discurs de ${targetSeconds/60} minute are nevoie de aproximativ ${Math.round(targetSeconds/60*WPM)} de cuvinte.`;
+    } else if(diff > 30){
+      paceNoteEl.textContent = `Textul e cam lung — la ${WPM} cuvinte/minut ai avea nevoie de ${formatTime(Math.abs(diff))} în plus față de cele ${targetSeconds/60} minute alocate. Ia în calcul să tai din text.`;
+    } else if(diff < -30){
+      paceNoteEl.textContent = `Textul e cam scurt — la ${WPM} cuvinte/minut ți-ar rămâne ${formatTime(Math.abs(diff))} nefolosite din cele ${targetSeconds/60} minute alocate.`;
+    } else {
+      paceNoteEl.textContent = `Lungime potrivită pentru ${targetSeconds/60} minute, la un ritm de ${WPM} cuvinte/minut.`;
+    }
+  }
+
+  speechText.addEventListener('input', updateStats);
+
+  // ---- Timer ----
+  const timeDisplay = document.getElementById('timeDisplay');
+  const statusLabel = document.getElementById('statusLabel');
+  const startBtn = document.getElementById('startBtn');
+  const pauseBtn = document.getElementById('pauseBtn');
+  const resetBtn = document.getElementById('resetBtn');
+  const durationSelect = document.getElementById('durationSelect');
+  const ringProgress = document.getElementById('ringProgress');
+
+  const RADIUS = 66;
+  const CIRCUMFERENCE = 2 * Math.PI * RADIUS;
+  ringProgress.style.strokeDasharray = CIRCUMFERENCE;
+  ringProgress.style.strokeDashoffset = 0;
+
+  let totalSeconds = parseInt(durationSelect.value, 10);
+  let remaining = totalSeconds;
+  let timerId = null;
+  let running = false;
+  let overtime = false;
+
+  function formatTime(sec){
+    const s = Math.abs(sec);
+    const m = Math.floor(s / 60);
+    const r = s % 60;
+    const sign = sec < 0 ? '+' : '';
+    return `${sign}${m}:${String(r).padStart(2,'0')}`;
+  }
+
+  function renderTimer(){
+    timeDisplay.textContent = formatTime(remaining);
+
+    let elapsedRatio;
+    if(remaining >= 0){
+      elapsedRatio = (totalSeconds - remaining) / totalSeconds;
+    } else {
+      elapsedRatio = 1;
+    }
+    elapsedRatio = Math.min(Math.max(elapsedRatio, 0), 1);
+    ringProgress.style.strokeDashoffset = CIRCUMFERENCE * (1 - elapsedRatio);
+
+    // culoare in functie de timpul ramas
+    let color = 'var(--gold)';
+    if(remaining < 0){
+      color = 'var(--red)';
+    } else if(remaining <= totalSeconds * 0.15){
+      color = 'var(--red)';
+    } else if(remaining <= totalSeconds * 0.4){
+      color = 'var(--amber)';
+    }
+    ringProgress.style.stroke = color;
+
+    if(remaining < 0){
+      statusLabel.textContent = `depășit cu ${formatTime(remaining).replace('+','')}`;
+      statusLabel.className = 'timer-status over';
+    } else if(running){
+      statusLabel.textContent = 'în desfășurare';
+      statusLabel.className = 'timer-status live';
+    } else if(remaining === totalSeconds){
+      statusLabel.textContent = 'gata de start';
+      statusLabel.className = 'timer-status';
+    } else {
+      statusLabel.textContent = 'pauză';
+      statusLabel.className = 'timer-status';
+    }
+  }
+
+  function tick(){
+    remaining -= 1;
+    renderTimer();
+  }
+
+  function startTimer(){
+    if(running) return;
+    running = true;
+    startBtn.disabled = true;
+    pauseBtn.disabled = false;
+    durationSelect.disabled = true;
+    timerId = setInterval(tick, 1000);
+    renderTimer();
+  }
+
+  function pauseTimer(){
+    running = false;
+    clearInterval(timerId);
+    startBtn.disabled = false;
+    pauseBtn.disabled = true;
+    renderTimer();
+  }
+
+  function resetTimer(){
+    running = false;
+    clearInterval(timerId);
+    totalSeconds = parseInt(durationSelect.value, 10);
+    remaining = totalSeconds;
+    startBtn.disabled = false;
+    pauseBtn.disabled = true;
+    durationSelect.disabled = false;
+    renderTimer();
+  }
+
+  startBtn.addEventListener('click', startTimer);
+  pauseBtn.addEventListener('click', pauseTimer);
+  resetBtn.addEventListener('click', resetTimer);
+  durationSelect.addEventListener('change', () => {
+    if(!running){
+      totalSeconds = parseInt(durationSelect.value, 10);
+      remaining = totalSeconds;
+      renderTimer();
+      updateStats();
+    }
+  });
+
+  // init
+  renderTimer();
+  updateStats();
+</script>
+</body>
+</html>
