@@ -366,6 +366,83 @@
   .history-actions .load-btn:hover{background:var(--gold);color:#1b1200;}
   .history-actions .del-btn{color:var(--red);}
   .history-actions .del-btn:hover{border-color:var(--red);}
+
+  /* Detalii cuvântare (titlu, data, ora, loc, observatii) */
+  .field-grid{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:16px 20px;
+  }
+  .field-col-title,.field-col-notes{grid-column:1 / -1;}
+  .field-col input[type="text"],
+  .field-col input[type="date"],
+  .field-col input[type="time"]{
+    width:100%;
+    background:var(--panel-2);
+    border:1px solid var(--line);
+    border-radius:8px;
+    color:var(--paper);
+    font-family:'Inter',sans-serif;
+    font-size:14px;
+    padding:10px 12px;
+  }
+  .field-col input[type="date"],.field-col input[type="time"]{color-scheme:dark;}
+  .field-col input:focus{outline:none;border-color:var(--gold);}
+  .field-col textarea{
+    width:100%;
+    background:var(--panel-2);
+    border:1px solid var(--line);
+    border-radius:8px;
+    color:var(--paper);
+    font-family:'Inter',sans-serif;
+    font-size:14px;
+    line-height:1.5;
+    padding:10px 12px;
+    resize:vertical;
+    min-height:52px;
+  }
+  .field-col textarea:focus{outline:none;border-color:var(--gold);}
+  .req{color:var(--red);margin-left:3px;}
+  .invalid{border-color:var(--red) !important;}
+  @media (max-width:480px){
+    .field-grid{grid-template-columns:1fr;}
+  }
+
+  /* Buton Calendar */
+  .cal-btn{
+    display:inline-flex;
+    align-items:center;
+    gap:8px;
+    border-color:var(--gold);
+    color:var(--gold);
+  }
+  .cal-btn:hover{background:var(--gold);color:#1b1200;}
+
+  /* Cautare + sortare in istoric */
+  .history-controls{
+    display:flex;
+    gap:10px;
+    margin-bottom:16px;
+    flex-wrap:wrap;
+  }
+  .history-controls input{
+    flex:1;
+    min-width:140px;
+    background:var(--panel-2);
+    border:1px solid var(--line);
+    border-radius:8px;
+    color:var(--paper);
+    font-family:'Inter',sans-serif;
+    font-size:13px;
+    padding:8px 10px;
+  }
+  .history-controls input:focus{outline:none;border-color:var(--gold);}
+  .history-controls button{
+    font-size:12.5px;
+    padding:8px 12px;
+    white-space:nowrap;
+  }
+  .history-title{color:var(--paper);font-weight:600;font-size:13px;}
 </style>
 </head>
 <body>
@@ -419,6 +496,10 @@
     <div class="modal">
       <h2>Discursuri salvate</h2>
       <p class="modal-sub">Salvate local, în acest telefon/browser — nu pe un server.</p>
+      <div class="history-controls">
+        <input type="text" id="historySearch" placeholder="Caută după titlu…">
+        <button id="sortToggleBtn" type="button" title="Schimbă ordinea">↑ Crescător</button>
+      </div>
       <div id="historyEmpty" class="history-empty">Nu ai salvat încă niciun discurs. Apasă „Salvează" sub textul discursului.</div>
       <ul class="history-list" id="historyList"></ul>
       <div class="modal-close-row">
@@ -426,6 +507,31 @@
       </div>
     </div>
   </div>
+
+  <section class="panel">
+    <div class="field-grid">
+      <div class="field-col field-col-title">
+        <label class="field-label" for="speechTitle">Titlul cuvântării<span class="req">*</span></label>
+        <input type="text" id="speechTitle" placeholder="ex: Credința lui Avraam">
+      </div>
+      <div class="field-col">
+        <label class="field-label" for="speechDate">Data susținerii<span class="req">*</span></label>
+        <input type="date" id="speechDate">
+      </div>
+      <div class="field-col">
+        <label class="field-label" for="speechTime">Ora</label>
+        <input type="time" id="speechTime">
+      </div>
+      <div class="field-col">
+        <label class="field-label" for="speechPlace">Locul</label>
+        <input type="text" id="speechPlace" placeholder="ex: Sala Regatului">
+      </div>
+      <div class="field-col field-col-notes">
+        <label class="field-label" for="speechNotes">Observații</label>
+        <textarea id="speechNotes" rows="2" placeholder="Note, referințe, sarcini de pregătit…"></textarea>
+      </div>
+    </div>
+  </section>
 
   <section class="panel">
     <div class="timer-row">
@@ -468,6 +574,10 @@
       <button id="whatsappBtn" class="wa-btn" type="button">
         <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12.001 2C6.478 2 2 6.477 2 12c0 1.85.505 3.583 1.383 5.07L2 22l5.06-1.362C8.5 21.502 10.201 22 12.001 22c5.523 0 10-4.477 10-10s-4.477-10-10-10zm0 18.2c-1.58 0-3.06-.462-4.303-1.257l-.309-.194-3.15.849.842-3.07-.202-.317A8.14 8.14 0 0 1 3.8 12c0-4.52 3.68-8.2 8.2-8.2 4.52 0 8.2 3.68 8.2 8.2 0 4.52-3.68 8.2-8.2 8.2z"/></svg>
         Trimite pe WhatsApp
+      </button>
+      <button id="calendarBtn" class="cal-btn" type="button">
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"></rect><path d="M16 2v4M8 2v4M3 10h18"></path></svg>
+        Adaugă în Calendar
       </button>
     </div>
 
@@ -525,17 +635,56 @@
   });
 
   // ---- Salvare discursuri (localStorage) ----
-  const STORAGE_KEY = 'cuvantare_saves_v1';
+  const STORAGE_KEY = 'cuvantare_saves_v1'; // aceeași cheie — compatibil cu salvările existente
   const saveBtn = document.getElementById('saveBtn');
+  const calendarBtn = document.getElementById('calendarBtn');
   const historyBtn = document.getElementById('historyBtn');
   const historyOverlay = document.getElementById('historyOverlay');
   const historyCloseBtn = document.getElementById('historyCloseBtn');
   const historyList = document.getElementById('historyList');
   const historyEmpty = document.getElementById('historyEmpty');
+  const historySearch = document.getElementById('historySearch');
+  const sortToggleBtn = document.getElementById('sortToggleBtn');
+  const speechTitle = document.getElementById('speechTitle');
+  const speechDate = document.getElementById('speechDate');
+  const speechTime = document.getElementById('speechTime');
+  const speechPlace = document.getElementById('speechPlace');
+  const speechNotes = document.getElementById('speechNotes');
+
+  let sortAsc = true; // implicit: cea mai apropiată dată prima (crescător)
+
+  // Normalizează o salvare, indiferent dacă e în schema veche ({id,date,text})
+  // sau în schema nouă (cu titlu, data susținerii, ora, locul, observații).
+  function normalizeEntry(raw){
+    const isOldSchema = typeof raw.title === 'undefined' && typeof raw.speechDate === 'undefined';
+    if(isOldSchema){
+      return {
+        id: raw.id,
+        title: '(fără titlu)',
+        speechDate: raw.date ? raw.date.slice(0,10) : '',
+        time: '',
+        place: '',
+        notes: '',
+        text: raw.text || '',
+        savedAt: raw.date || new Date().toISOString()
+      };
+    }
+    return {
+      id: raw.id,
+      title: raw.title || '(fără titlu)',
+      speechDate: raw.speechDate || '',
+      time: raw.time || '',
+      place: raw.place || '',
+      notes: raw.notes || '',
+      text: raw.text || '',
+      savedAt: raw.savedAt || new Date().toISOString()
+    };
+  }
 
   function getSaves(){
     try{
-      return JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
+      const raw = JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
+      return raw.map(normalizeEntry);
     }catch(e){
       return [];
     }
@@ -543,28 +692,61 @@
   function setSaves(saves){
     localStorage.setItem(STORAGE_KEY, JSON.stringify(saves));
   }
-  function formatSaveDate(iso){
-    const d = new Date(iso);
-    const dd2 = String(d.getDate()).padStart(2,'0');
-    const mm2 = String(d.getMonth()+1).padStart(2,'0');
-    const hh2 = String(d.getHours()).padStart(2,'0');
-    const mi2 = String(d.getMinutes()).padStart(2,'0');
-    return `${zileSaptamana[d.getDay()]}, ${dd2}.${mm2}.${d.getFullYear()} — ${hh2}:${mi2}`;
+  function formatDMY(isoDate){
+    if(!isoDate) return '—';
+    const [y,m,d] = isoDate.split('-');
+    if(!y || !m || !d) return '—';
+    return `${d}.${m}.${y}`;
+  }
+  function escapeHtml(str){
+    return String(str).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  }
+
+  function getFilteredSortedSaves(){
+    const query = (historySearch.value || '').trim().toLowerCase();
+    let saves = getSaves();
+    if(query){
+      saves = saves.filter(s => s.title.toLowerCase().includes(query));
+    }
+    saves.sort((a,b) => {
+      const da = a.speechDate || '';
+      const db = b.speechDate || '';
+      if(da === db) return 0;
+      return sortAsc ? da.localeCompare(db) : db.localeCompare(da);
+    });
+    return saves;
+  }
+
+  function loadEntry(entry){
+    speechTitle.value = entry.title === '(fără titlu)' ? '' : entry.title;
+    speechDate.value = entry.speechDate || '';
+    speechTime.value = entry.time || '';
+    speechPlace.value = entry.place || '';
+    speechNotes.value = entry.notes || '';
+    speechText.value = entry.text;
+    speechTitle.classList.remove('invalid');
+    speechDate.classList.remove('invalid');
+    autoGrow();
+    updateStats();
   }
 
   function renderHistory(){
-    const saves = getSaves().sort((a,b) => b.date.localeCompare(a.date));
+    const saves = getFilteredSortedSaves();
     historyList.innerHTML = '';
     historyEmpty.style.display = saves.length ? 'none' : 'block';
     saves.forEach(entry => {
       const li = document.createElement('li');
       li.className = 'history-item';
       const words = countWords(entry.text);
+      const metaParts = [];
+      if(entry.time) metaParts.push(entry.time);
+      if(entry.place) metaParts.push(entry.place);
+      metaParts.push(`${words} cuvinte`);
       li.innerHTML = `
         <div class="history-item-top">
-          <span class="history-date">${formatSaveDate(entry.date)}</span>
-          <span class="history-meta">${words} cuvinte</span>
+          <span class="history-date">📅 ${formatDMY(entry.speechDate)}</span><span class="history-title"> – ${escapeHtml(entry.title)}</span>
         </div>
+        <div class="history-meta">${metaParts.map(escapeHtml).join(' · ')}</div>
         <div class="history-preview"></div>
         <div class="history-actions">
           <button class="load-btn" type="button">Încarcă</button>
@@ -573,9 +755,7 @@
       `;
       li.querySelector('.history-preview').textContent = entry.text;
       li.querySelector('.load-btn').addEventListener('click', () => {
-        speechText.value = entry.text;
-        autoGrow();
-        updateStats();
+        loadEntry(entry);
         closeHistory();
         speechText.focus();
       });
@@ -600,15 +780,47 @@
   historyOverlay.addEventListener('click', (e) => {
     if(e.target === historyOverlay) closeHistory();
   });
+  historySearch.addEventListener('input', renderHistory);
+  sortToggleBtn.addEventListener('click', () => {
+    sortAsc = !sortAsc;
+    sortToggleBtn.textContent = sortAsc ? '↑ Crescător' : '↓ Descrescător';
+    renderHistory();
+  });
+
+  speechTitle.addEventListener('input', () => speechTitle.classList.remove('invalid'));
+  speechDate.addEventListener('input', () => speechDate.classList.remove('invalid'));
 
   saveBtn.addEventListener('click', () => {
     const text = speechText.value.trim();
+    const title = speechTitle.value.trim();
+    const date = speechDate.value;
+
+    speechTitle.classList.remove('invalid');
+    speechDate.classList.remove('invalid');
+    let hasError = false;
+    if(!title){ speechTitle.classList.add('invalid'); hasError = true; }
+    if(!date){ speechDate.classList.add('invalid'); hasError = true; }
+
     if(!text){
       speechText.focus();
       return;
     }
+    if(hasError){
+      if(!title) speechTitle.focus(); else speechDate.focus();
+      return;
+    }
+
     const saves = getSaves();
-    saves.push({ id: Date.now().toString(36), date: new Date().toISOString(), text });
+    saves.push({
+      id: Date.now().toString(36),
+      title,
+      speechDate: date,
+      time: speechTime.value || '',
+      place: speechPlace.value.trim(),
+      notes: speechNotes.value.trim(),
+      text,
+      savedAt: new Date().toISOString()
+    });
     setSaves(saves);
 
     const original = saveBtn.innerHTML;
@@ -618,6 +830,51 @@
       saveBtn.classList.remove('saved');
       saveBtn.innerHTML = original;
     }, 1500);
+  });
+
+  // ---- Adaugă în Calendar (Android — deschide aplicația Calendar / Google Calendar) ----
+  calendarBtn.addEventListener('click', () => {
+    const title = speechTitle.value.trim();
+    const date = speechDate.value;
+    if(!title){
+      speechTitle.classList.add('invalid');
+      speechTitle.focus();
+      return;
+    }
+    if(!date){
+      speechDate.classList.add('invalid');
+      speechDate.focus();
+      return;
+    }
+    const time = speechTime.value;
+    const place = speechPlace.value.trim();
+    const notes = speechNotes.value.trim();
+    const pad = n => String(n).padStart(2,'0');
+    const [y,m,d] = date.split('-').map(Number);
+
+    let datesParam;
+    if(time){
+      const [hh,mi] = time.split(':').map(Number);
+      const start = new Date(y, m-1, d, hh, mi);
+      const end = new Date(start.getTime() + 30*60000); // durată implicită 30 min
+      const fmt = dt => `${dt.getFullYear()}${pad(dt.getMonth()+1)}${pad(dt.getDate())}T${pad(dt.getHours())}${pad(dt.getMinutes())}00`;
+      datesParam = `${fmt(start)}/${fmt(end)}`;
+    } else {
+      const startStr = `${y}${pad(m)}${pad(d)}`;
+      const endDate = new Date(y, m-1, d+1);
+      const endStr = `${endDate.getFullYear()}${pad(endDate.getMonth()+1)}${pad(endDate.getDate())}`;
+      datesParam = `${startStr}/${endStr}`; // eveniment de toată ziua
+    }
+
+    const params = new URLSearchParams({
+      action: 'TEMPLATE',
+      text: title,
+      dates: datesParam
+    });
+    if(notes) params.set('details', notes);
+    if(place) params.set('location', place);
+
+    window.open(`https://calendar.google.com/calendar/render?${params.toString()}`, '_blank');
   });
 
   // ---- Panou „Cum se folosește" ----

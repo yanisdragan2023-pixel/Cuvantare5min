@@ -1,10 +1,13 @@
 # Cuvântare
 
-Aplicație simplă, într-un singur fișier HTML, pentru exersat discursuri:
+Aplicație simplă, într-un singur fișier HTML, pentru pregătit, exersat și arhivat discursuri:
 
 - Cronometru configurabil (3 / 5 / 7 / 10 minute), cu inel de progres care se colorează (auriu → galben → roșu) pe măsură ce timpul se scurge, și continuă în minus dacă depășești timpul alocat.
 - Numărător de cuvinte și caractere, live, pe măsură ce scrii sau lipești textul.
 - Estimare a duratei discursului la un ritm de 130 cuvinte/minut, cu indicație dacă textul e prea lung sau prea scurt pentru durata aleasă.
+- Câmpuri pentru titlul cuvântării, data susținerii, ora, locul și observații — salvate împreună cu conținutul.
+- Istoric de cuvântări salvate, cu căutare după titlu și sortare după data susținerii (crescător/descrescător).
+- Buton „Adaugă în Calendar" care deschide Google Calendar (aplicație sau web) cu evenimentul precompletat.
 
 Nu are dependențe externe de build — folosește Google Fonts prin CDN.
 
