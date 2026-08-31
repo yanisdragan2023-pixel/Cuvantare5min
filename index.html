@@ -202,7 +202,15 @@
   .whatsapp-row{
     margin-top:14px;
     display:flex;
+    gap:10px;
+    flex-wrap:wrap;
   }
+  .save-btn{
+    display:inline-flex;
+    align-items:center;
+    gap:8px;
+  }
+  .save-btn.saved{background:var(--green);border-color:var(--green);color:#0b2b18;}
   .wa-btn{
     display:inline-flex;
     align-items:center;
@@ -318,6 +326,46 @@
   .modal li{margin-bottom:12px;line-height:1.55;font-size:14.5px;}
   .modal li b{color:var(--gold);font-weight:600;}
   .modal-close-row{margin-top:22px;display:flex;justify-content:flex-end;}
+
+  /* Istoric discursuri salvate */
+  .history-empty{color:var(--muted);font-size:14px;line-height:1.5;}
+  .history-list{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:10px;}
+  .history-item{
+    border:1px solid var(--line);
+    border-radius:10px;
+    padding:12px 14px;
+    background:var(--panel-2);
+  }
+  .history-item-top{
+    display:flex;
+    justify-content:space-between;
+    align-items:baseline;
+    gap:10px;
+    margin-bottom:6px;
+  }
+  .history-date{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:12.5px;
+    color:var(--gold);
+    font-weight:600;
+  }
+  .history-meta{font-size:12px;color:var(--muted);}
+  .history-preview{
+    font-size:13.5px;
+    color:var(--paper);
+    line-height:1.4;
+    display:-webkit-box;
+    -webkit-line-clamp:2;
+    -webkit-box-orient:vertical;
+    overflow:hidden;
+    margin-bottom:10px;
+  }
+  .history-actions{display:flex;gap:8px;}
+  .history-actions button{padding:6px 12px;font-size:13px;}
+  .history-actions .load-btn{border-color:var(--gold);color:var(--gold);}
+  .history-actions .load-btn:hover{background:var(--gold);color:#1b1200;}
+  .history-actions .del-btn{color:var(--red);}
+  .history-actions .del-btn:hover{border-color:var(--red);}
 </style>
 </head>
 <body>
@@ -334,6 +382,13 @@
         <button class="size-btn minus" id="fontMinusBtn" type="button" aria-label="Text mai mic" title="Text mai mic">A</button>
         <button class="size-btn plus" id="fontPlusBtn" type="button" aria-label="Text mai mare" title="Text mai mare">A</button>
       </div>
+      <button class="gear-btn" id="historyBtn" type="button" aria-label="Discursuri salvate" title="Discursuri salvate">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="3" y="4" width="18" height="18" rx="3"></rect>
+          <path d="M16 2v4M8 2v4M3 10h18"></path>
+          <path d="M9 15l2 2 4-4"></path>
+        </svg>
+      </button>
       <button class="gear-btn" id="helpBtn" type="button" aria-label="Cum se folosește" title="Cum se folosește">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
           <circle cx="12" cy="12" r="3"></circle>
@@ -356,6 +411,18 @@
       <p class="modal-sub" style="margin-top:16px;margin-bottom:0;">Bonus: butonul verde <b>„Trimite pe WhatsApp"</b> deschide textul gata de trimis către oricine.</p>
       <div class="modal-close-row">
         <button class="primary" id="helpCloseBtn" type="button">Am înțeles</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="overlay" id="historyOverlay">
+    <div class="modal">
+      <h2>Discursuri salvate</h2>
+      <p class="modal-sub">Salvate local, în acest telefon/browser — nu pe un server.</p>
+      <div id="historyEmpty" class="history-empty">Nu ai salvat încă niciun discurs. Apasă „Salvează" sub textul discursului.</div>
+      <ul class="history-list" id="historyList"></ul>
+      <div class="modal-close-row">
+        <button id="historyCloseBtn" type="button">Închide</button>
       </div>
     </div>
   </div>
@@ -394,6 +461,10 @@
     <textarea id="speechText" placeholder="Scrie sau lipește discursul aici…" rows="1"></textarea>
 
     <div class="whatsapp-row">
+      <button id="saveBtn" class="save-btn primary" type="button">
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path><polyline points="17 21 17 13 7 13 7 21"></polyline><polyline points="7 3 7 8 15 8"></polyline></svg>
+        Salvează
+      </button>
       <button id="whatsappBtn" class="wa-btn" type="button">
         <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12.001 2C6.478 2 2 6.477 2 12c0 1.85.505 3.583 1.383 5.07L2 22l5.06-1.362C8.5 21.502 10.201 22 12.001 22c5.523 0 10-4.477 10-10s-4.477-10-10-10zm0 18.2c-1.58 0-3.06-.462-4.303-1.257l-.309-.194-3.15.849.842-3.07-.202-.317A8.14 8.14 0 0 1 3.8 12c0-4.52 3.68-8.2 8.2-8.2 4.52 0 8.2 3.68 8.2 8.2 0 4.52-3.68 8.2-8.2 8.2z"/></svg>
         Trimite pe WhatsApp
@@ -451,6 +522,102 @@
   fontPlusBtn.addEventListener('click', () => {
     textScale = Math.min(MAX_SCALE, +(textScale + STEP).toFixed(2));
     applyTextScale();
+  });
+
+  // ---- Salvare discursuri (localStorage) ----
+  const STORAGE_KEY = 'cuvantare_saves_v1';
+  const saveBtn = document.getElementById('saveBtn');
+  const historyBtn = document.getElementById('historyBtn');
+  const historyOverlay = document.getElementById('historyOverlay');
+  const historyCloseBtn = document.getElementById('historyCloseBtn');
+  const historyList = document.getElementById('historyList');
+  const historyEmpty = document.getElementById('historyEmpty');
+
+  function getSaves(){
+    try{
+      return JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
+    }catch(e){
+      return [];
+    }
+  }
+  function setSaves(saves){
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(saves));
+  }
+  function formatSaveDate(iso){
+    const d = new Date(iso);
+    const dd2 = String(d.getDate()).padStart(2,'0');
+    const mm2 = String(d.getMonth()+1).padStart(2,'0');
+    const hh2 = String(d.getHours()).padStart(2,'0');
+    const mi2 = String(d.getMinutes()).padStart(2,'0');
+    return `${zileSaptamana[d.getDay()]}, ${dd2}.${mm2}.${d.getFullYear()} — ${hh2}:${mi2}`;
+  }
+
+  function renderHistory(){
+    const saves = getSaves().sort((a,b) => b.date.localeCompare(a.date));
+    historyList.innerHTML = '';
+    historyEmpty.style.display = saves.length ? 'none' : 'block';
+    saves.forEach(entry => {
+      const li = document.createElement('li');
+      li.className = 'history-item';
+      const words = countWords(entry.text);
+      li.innerHTML = `
+        <div class="history-item-top">
+          <span class="history-date">${formatSaveDate(entry.date)}</span>
+          <span class="history-meta">${words} cuvinte</span>
+        </div>
+        <div class="history-preview"></div>
+        <div class="history-actions">
+          <button class="load-btn" type="button">Încarcă</button>
+          <button class="del-btn" type="button">Șterge</button>
+        </div>
+      `;
+      li.querySelector('.history-preview').textContent = entry.text;
+      li.querySelector('.load-btn').addEventListener('click', () => {
+        speechText.value = entry.text;
+        autoGrow();
+        updateStats();
+        closeHistory();
+        speechText.focus();
+      });
+      li.querySelector('.del-btn').addEventListener('click', () => {
+        const remaining = getSaves().filter(s => s.id !== entry.id);
+        setSaves(remaining);
+        renderHistory();
+      });
+      historyList.appendChild(li);
+    });
+  }
+
+  function openHistory(){
+    renderHistory();
+    historyOverlay.classList.add('open');
+  }
+  function closeHistory(){
+    historyOverlay.classList.remove('open');
+  }
+  historyBtn.addEventListener('click', openHistory);
+  historyCloseBtn.addEventListener('click', closeHistory);
+  historyOverlay.addEventListener('click', (e) => {
+    if(e.target === historyOverlay) closeHistory();
+  });
+
+  saveBtn.addEventListener('click', () => {
+    const text = speechText.value.trim();
+    if(!text){
+      speechText.focus();
+      return;
+    }
+    const saves = getSaves();
+    saves.push({ id: Date.now().toString(36), date: new Date().toISOString(), text });
+    setSaves(saves);
+
+    const original = saveBtn.innerHTML;
+    saveBtn.classList.add('saved');
+    saveBtn.innerHTML = '✓ Salvat';
+    setTimeout(() => {
+      saveBtn.classList.remove('saved');
+      saveBtn.innerHTML = original;
+    }, 1500);
   });
 
   // ---- Panou „Cum se folosește" ----
