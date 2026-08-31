@@ -234,16 +234,131 @@
     .timer-row{flex-direction:column;align-items:flex-start;}
     h1{font-size:32px;}
   }
+
+  /* Header row + settings */
+  .head-row{display:flex;justify-content:space-between;align-items:flex-start;gap:16px;}
+  .gear-btn{
+    flex:none;
+    width:48px;height:48px;
+    border-radius:12px;
+    border:1.5px solid var(--gold);
+    background:var(--panel-2);
+    color:var(--gold);
+    display:flex;align-items:center;justify-content:center;
+    cursor:pointer;
+    box-shadow:0 0 0 4px rgba(232,163,61,0.12);
+    transition:border-color 0.15s, color 0.15s, transform 0.2s, box-shadow 0.15s;
+    margin-top:4px;
+  }
+  .gear-btn:hover{border-color:#f0b452;color:#f0b452;box-shadow:0 0 0 5px rgba(232,163,61,0.2);transform:scale(1.05);}
+  .gear-btn svg{width:24px;height:24px;stroke-width:2;}
+  .gear-btn.spin svg{animation:spin 0.5s ease;}
+  @keyframes spin{from{transform:rotate(0deg);}to{transform:rotate(90deg);}}
+
+  .today{
+    margin-top:8px;
+    font-family:'IBM Plex Mono',monospace;
+    font-size:13px;
+    font-weight:600;
+    color:var(--gold);
+    letter-spacing:0.02em;
+  }
+
+  .text-size-controls{
+    display:flex;
+    gap:6px;
+    flex:none;
+    margin-top:4px;
+  }
+  .size-btn{
+    width:38px;height:48px;
+    border-radius:12px;
+    border:1.5px solid var(--line);
+    background:var(--panel-2);
+    color:var(--paper);
+    display:flex;align-items:center;justify-content:center;
+    cursor:pointer;
+    font-family:'Inter',sans-serif;
+    font-weight:600;
+    padding:0;
+    transition:border-color 0.15s, color 0.15s, transform 0.2s;
+  }
+  .size-btn:hover{border-color:var(--gold);color:var(--gold);}
+  .size-btn.minus{font-size:13px;}
+  .size-btn.plus{font-size:19px;}
+
+  /* Help modal */
+  .overlay{
+    position:fixed;inset:0;
+    background:rgba(10,11,16,0.7);
+    display:none;
+    align-items:center;justify-content:center;
+    padding:20px;
+    z-index:50;
+  }
+  .overlay.open{display:flex;}
+  .modal{
+    background:var(--panel);
+    border:1px solid var(--line);
+    border-radius:14px;
+    max-width:520px;
+    width:100%;
+    max-height:82vh;
+    overflow-y:auto;
+    padding:28px 28px 24px;
+  }
+  .modal h2{
+    font-family:'Fraunces',serif;
+    font-weight:600;
+    font-size:24px;
+    margin:0 0 4px;
+  }
+  .modal .modal-sub{color:var(--muted);font-size:13px;margin-bottom:20px;}
+  .modal ol, .modal ul{margin:0;padding-left:20px;}
+  .modal li{margin-bottom:12px;line-height:1.55;font-size:14.5px;}
+  .modal li b{color:var(--gold);font-weight:600;}
+  .modal-close-row{margin-top:22px;display:flex;justify-content:flex-end;}
 </style>
 </head>
 <body>
 <div class="wrap">
 
   <header>
-    <div class="eyebrow">exersează-ți discursul</div>
-    <h1>Cuvân<em>tare</em></h1>
-    <p class="sub">Scrie sau lipește discursul, urmărește câte cuvinte ai și cronometrează-te — implicit 5 minute, ritm recomandat 120–150 cuvinte/minut.</p>
+    <div class="head-row">
+      <div>
+        <div class="eyebrow">exersează-ți discursul</div>
+        <h1>Cuvân<em>tare</em></h1>
+        <p class="sub">Scrie sau lipește discursul, urmărește câte cuvinte ai și cronometrează-te — implicit 5 minute, ritm recomandat 120–150 cuvinte/minut.</p>
+      </div>
+      <div class="text-size-controls">
+        <button class="size-btn minus" id="fontMinusBtn" type="button" aria-label="Text mai mic" title="Text mai mic">A</button>
+        <button class="size-btn plus" id="fontPlusBtn" type="button" aria-label="Text mai mare" title="Text mai mare">A</button>
+      </div>
+      <button class="gear-btn" id="helpBtn" type="button" aria-label="Cum se folosește" title="Cum se folosește">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="3"></circle>
+          <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+        </svg>
+      </button>
+    </div>
+    <div class="today" id="todayLabel"></div>
   </header>
+
+  <div class="overlay" id="helpOverlay">
+    <div class="modal">
+      <h2>Cum se folosește</h2>
+      <p class="modal-sub">Trei pași, fără cont, fără server.</p>
+      <ol>
+        <li><b>Alege durata</b> discursului din meniul „durată" (3, 5, 7 sau 10 minute), apoi apasă <b>Start</b>. Inelul din stânga se colorează auriu → galben → roșu pe măsură ce timpul se scurge; dacă depășești timpul, cronometrul continuă în minus (cu roșu). Poți apăsa <b>Pauză</b> oricând și <b>Resetează</b> ca s-o iei de la capăt.</li>
+        <li><b>Scrie sau lipește textul discursului</b> în caseta de mai jos. Numărul de cuvinte și caractere se actualizează automat, live, pe măsură ce tastezi.</li>
+        <li><b>Urmărește durata estimată</b>, calculată la un ritm de 130 cuvinte/minut. Dacă textul e prea lung sau prea scurt pentru durata aleasă, caseta de sub numărători te avertizează și îți spune cu cât.</li>
+      </ol>
+      <p class="modal-sub" style="margin-top:16px;margin-bottom:0;">Bonus: butonul verde <b>„Trimite pe WhatsApp"</b> deschide textul gata de trimis către oricine.</p>
+      <div class="modal-close-row">
+        <button class="primary" id="helpCloseBtn" type="button">Am înțeles</button>
+      </div>
+    </div>
+  </div>
 
   <section class="panel">
     <div class="timer-row">
@@ -305,10 +420,61 @@
     </div>
   </section>
 
-  <footer>făcut pentru exersat vorbitul în public</footer>
+  <footer>făcut pentru exersat vorbitul în public · creat la 31.08.2026</footer>
 </div>
 
 <script>
+  // ---- Data de azi ----
+  const todayLabel = document.getElementById('todayLabel');
+  const zileSaptamana = ['duminică','luni','marți','miercuri','joi','vineri','sâmbătă'];
+  const azi = new Date();
+  const dd = String(azi.getDate()).padStart(2,'0');
+  const mm = String(azi.getMonth()+1).padStart(2,'0');
+  const yyyy = azi.getFullYear();
+  todayLabel.textContent = `azi: ${zileSaptamana[azi.getDay()]}, ${dd}.${mm}.${yyyy}`;
+
+  // ---- Mărire / micșorare text ----
+  const fontMinusBtn = document.getElementById('fontMinusBtn');
+  const fontPlusBtn = document.getElementById('fontPlusBtn');
+  const MIN_SCALE = 0.8, MAX_SCALE = 1.6, STEP = 0.1;
+  let textScale = 1;
+
+  function applyTextScale(){
+    document.documentElement.style.setProperty('--text-scale', textScale);
+    speechText.style.fontSize = (16 * textScale) + 'px';
+    autoGrow();
+  }
+  fontMinusBtn.addEventListener('click', () => {
+    textScale = Math.max(MIN_SCALE, +(textScale - STEP).toFixed(2));
+    applyTextScale();
+  });
+  fontPlusBtn.addEventListener('click', () => {
+    textScale = Math.min(MAX_SCALE, +(textScale + STEP).toFixed(2));
+    applyTextScale();
+  });
+
+  // ---- Panou „Cum se folosește" ----
+  const helpBtn = document.getElementById('helpBtn');
+  const helpOverlay = document.getElementById('helpOverlay');
+  const helpCloseBtn = document.getElementById('helpCloseBtn');
+
+  function openHelp(){
+    helpOverlay.classList.add('open');
+    helpBtn.classList.add('spin');
+    setTimeout(() => helpBtn.classList.remove('spin'), 500);
+  }
+  function closeHelp(){
+    helpOverlay.classList.remove('open');
+  }
+  helpBtn.addEventListener('click', openHelp);
+  helpCloseBtn.addEventListener('click', closeHelp);
+  helpOverlay.addEventListener('click', (e) => {
+    if(e.target === helpOverlay) closeHelp();
+  });
+  document.addEventListener('keydown', (e) => {
+    if(e.key === 'Escape') closeHelp();
+  });
+
   // ---- Word / char counter ----
   const speechText = document.getElementById('speechText');
   const wordCountEl = document.getElementById('wordCount');
